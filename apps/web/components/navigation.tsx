@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@repo/ui/components/button";
 import { Menu, X } from "lucide-react";
+import { ThemeToggle } from "./theme-toggle";
 
 export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,7 +22,8 @@ export function Navigation() {
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
             <Button
               asChild
               variant="outline"
@@ -49,7 +51,11 @@ export function Navigation() {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden border-t border-border">
-            <div className="px-2 pt-2 pb-3 space-y-1">
+            <div className="px-2 pt-2 pb-3 space-y-3">
+              <div className="px-3 py-2 flex justify-between items-center">
+                <span className="text-sm font-medium">테마 설정</span>
+                <ThemeToggle />
+              </div>
               <div className="px-3 py-2">
                 <Button
                   asChild

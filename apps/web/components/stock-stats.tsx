@@ -4,6 +4,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
+import { format } from "date-fns";
 import {
   TrendingUp,
   TrendingDown,
@@ -38,7 +39,7 @@ export function StockStats({ stats }: StockStatsProps) {
   const formatVolume = (volume: number) => `${volume.toLocaleString()}주`;
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return `${date.getMonth() + 1}월 ${date.getDate()}일`;
+    return format(date, "yyyy년 M월 dd일");
   };
 
   return (
@@ -107,7 +108,9 @@ export function StockStats({ stats }: StockStatsProps) {
               <div className="text-2xl font-bold text-blue-700">
                 {formatPrice(stats.requiredPrice)}
               </div>
-              <p className="text-xs text-blue-600">40거래일 평균의 130%</p>
+              <p className="text-xs text-blue-600">
+                당일 종가가 기준치 이상이어야 합니다.
+              </p>
             </CardContent>
           </Card>
 
@@ -121,6 +124,9 @@ export function StockStats({ stats }: StockStatsProps) {
               <div className="text-2xl font-bold text-blue-700">
                 {formatVolume(stats.minTradingVolume)}
               </div>
+              <p className="text-xs text-blue-600">
+                당일 거래량이 기준치 이상이어야 합니다.
+              </p>
             </CardContent>
           </Card>
 
@@ -134,7 +140,9 @@ export function StockStats({ stats }: StockStatsProps) {
               <div className="text-2xl font-bold text-blue-700">
                 {stats.requiredVolatility.toFixed(2)}%
               </div>
-              <p className="text-xs text-blue-600">최근 2일 평균이 이 수치</p>
+              <p className="text-xs text-blue-600">
+                최근 2일 평균이 기준치 이상이어야 합니다.
+              </p>
             </CardContent>
           </Card>
         </div>

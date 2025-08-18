@@ -86,11 +86,11 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 pt-20">
+    <div className="bg-background p-4 pt-20">
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold text-foreground">
-            단기과열종목 지정 조건 계산기
+            단기과열종목 계산기
           </h1>
           <p className="text-muted-foreground">
             단기과열종목 지정예고 종목이 실제로 단기과열종목에 지정되는 조건을
@@ -102,8 +102,8 @@ export default function Home() {
           <CardHeader>
             <CardTitle>종목 검색</CardTitle>
             <CardDescription>
-              단기과열종목 지정 조건을 확인할 종목 코드를 입력하세요 (예:
-              005930, 000660, 035420)
+              <p>단기과열종목 지정 조건을 확인할 종목 코드를 입력하세요.</p>
+              <p>(예: 005930, 000660, 035420)</p>
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -161,7 +161,7 @@ export default function Home() {
           </div>
         )}
 
-        <div className="max-w-4xl mx-auto mt-12 pt-8 border-t border-border">
+        <div className="max-w-4xl mx-auto mt-12 py-8 border-t border-border">
           <div className="bg-muted/50 rounded-lg p-6">
             <h3 className="text-sm font-semibold text-muted-foreground mb-3">
               투자 유의사항
@@ -170,6 +170,8 @@ export default function Home() {
               <p>
                 본 서비스는 단기과열종목 지정 조건 계산을 위한 참고 정보를
                 제공하며, 투자 권유나 매매 추천을 목적으로 하지 않습니다.
+              </p>
+              <p>
                 가격괴리율로 인한 단기과열종목 지정예고는 계산 대상에서
                 제외됩니다.
               </p>
@@ -177,11 +179,6 @@ export default function Home() {
                 모든 투자 결정은 이용자 본인의 판단과 책임하에 이루어져야 하며,
                 본 정보를 바탕으로 한 투자 결과에 대해 당사는 어떠한 책임도 지지
                 않습니다.
-              </p>
-              <p>
-                주식 투자는 원금 손실의 위험이 있으며, 과거 수익률이 미래
-                수익률을 보장하지 않습니다. 투자 전 충분한 검토와 전문가 상담을
-                받으시기 바랍니다.
               </p>
             </div>
           </div>

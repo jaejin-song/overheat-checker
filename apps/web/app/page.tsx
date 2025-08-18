@@ -1,189 +1,55 @@
-"use client";
+import type { Metadata } from "next";
+import HomeContent from "./home-content";
 
-import type React from "react";
-import { useState } from "react";
-import { Button } from "@repo/ui/components/button";
-import { Input } from "@repo/ui/components/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/components/card";
-import { Alert, AlertDescription } from "@repo/ui/components/alert";
-import { Loader2 } from "lucide-react";
-import { StockChart } from "@/components/stock-chart";
-import { StockStats } from "@/components/stock-stats";
-
-interface StockData {
-  date: string;
-  close: number;
-  high: number;
-  low: number;
-  volume: number;
-}
-
-interface StockInfo {
-  symbol: string;
-  name: string;
-  data: StockData[];
-  stats: {
-    avgPrice: number;
-    highPrice: number;
-    lowPrice: number;
-    requiredPrice: number;
-    requiredTurnoverRate: number;
-    requiredVolatility: number;
-    avgTurnoverRate: number;
-    avgVolatility: number;
-    minTomorrowTurnoverRate: number;
-    todayTurnoverRate: number;
-    sharesOutstanding: number;
-    minTradingVolume: number;
-    baseDate?: string;
-    targetDate?: string;
-    isMarketClosed: boolean;
-  };
-}
+export const metadata: Metadata = {
+  title: "단기과열종목 계산기",
+  description:
+    "단기과열종목 지정예고 종목이 실제로 단기과열종목에 지정되는 조건을 미리 계산해보세요. 주가상승률, 거래회전율, 주가변동성 조건을 실시간으로 분석하는 무료 도구입니다.",
+  keywords: [
+    "단기과열종목 계산기",
+    "주식 계산기",
+    "한국 주식시장",
+    "KOSPI 계산기",
+    "KOSDAQ 계산기",
+    "주가상승률 계산",
+    "거래회전율 계산",
+    "주가변동성 계산",
+    "주식 분석 도구",
+    "투자 도구",
+    "삼성전자",
+    "SK하이닉스",
+    "무료 주식 도구",
+  ],
+  openGraph: {
+    title: "단기과열종목 계산기",
+    description:
+      "단기과열종목 지정 조건을 실시간으로 계산하고 분석하는 무료 도구입니다. KOSPI/KOSDAQ 종목의 주가상승률, 거래회전율, 주가변동성을 한번에 확인하세요.",
+    url: "https://overheat-checker.vercel.app",
+    type: "website",
+    images: [
+      {
+        url: "/og-home.png",
+        width: 1200,
+        height: 630,
+        alt: "단기과열종목 계산기",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "단기과열종목 계산기",
+    description:
+      "단기과열종목 지정 조건을 실시간으로 계산하는 무료 도구입니다.",
+    images: ["/og-home.png"],
+  },
+  alternates: {
+    canonical: "/",
+  },
+  other: {
+    "google-site-verification": process.env.GOOGLE_SITE_VERIFICATION || "",
+  },
+};
 
 export default function Home() {
-  const [stockSymbol, setStockSymbol] = useState("");
-  const [stockInfo, setStockInfo] = useState<StockInfo | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!stockSymbol.trim()) return;
-
-    setLoading(true);
-    setError("");
-    setStockInfo(null);
-
-    try {
-      const response = await fetch("/api/stock", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ symbol: stockSymbol.trim() }),
-      });
-
-      if (!response.ok) {
-        throw new Error("주식 데이터를 가져오는데 실패했습니다.");
-      }
-
-      const data = await response.json();
-      setStockInfo(data);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="bg-background p-4 pt-20">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold text-foreground">
-            단기과열종목 계산기
-          </h1>
-          <p className="text-muted-foreground">
-            단기과열종목 지정예고 종목이 실제로 단기과열종목에 지정되는 조건을
-            미리 계산해보세요
-          </p>
-        </div>
-
-        <Card className="max-w-md mx-auto">
-          <CardHeader>
-            <CardTitle>종목 검색</CardTitle>
-            <CardDescription>
-              <p>단기과열종목 지정 조건을 확인할 종목 코드를 입력하세요.</p>
-              <p>(예: 005930, 000660, 035420)</p>
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <Input
-                type="text"
-                placeholder="종목 코드 입력 (예: 005930)"
-                value={stockSymbol}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setStockSymbol(e.target.value)
-                }
-                disabled={loading}
-              />
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    조건 계산 중...
-                  </>
-                ) : (
-                  "단기과열종목 조건 계산"
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        {error && (
-          <Alert variant="destructive" className="max-w-2xl mx-auto">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {stockInfo && (
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-2xl">
-                      {stockInfo.name} ({stockInfo.symbol})
-                    </CardTitle>
-                    <CardDescription>
-                      단기과열종목 지정 조건 분석
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <StockChart data={stockInfo.data} />
-              </CardContent>
-            </Card>
-
-            <StockStats stats={stockInfo.stats} />
-          </div>
-        )}
-
-        <div className="max-w-4xl mx-auto mt-12 py-8 border-t border-border">
-          <div className="bg-muted/50 rounded-lg p-6">
-            <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-              투자 유의사항
-            </h3>
-            <div className="text-xs text-muted-foreground space-y-2 leading-relaxed">
-              <p>
-                본 서비스는 단기과열종목 지정 조건 계산을 위한 참고 정보를
-                제공하며, 투자 권유나 매매 추천을 목적으로 하지 않습니다.
-              </p>
-              <p>
-                가격괴리율로 인한 단기과열종목 지정예고는 계산 대상에서
-                제외됩니다.
-              </p>
-              <p>
-                모든 투자 결정은 이용자 본인의 판단과 책임하에 이루어져야 하며,
-                본 정보를 바탕으로 한 투자 결과에 대해 당사는 어떠한 책임도 지지
-                않습니다.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return <HomeContent />;
 }

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   Card,
   CardContent,
@@ -5,8 +6,35 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { Mail, MessageCircle } from "lucide-react";
+import { Mail, MessageCircle, MoveLeft } from "lucide-react";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "문의하기",
+  description: "단기과열종목 계산기에 대한 문의사항이나 피드백을 보내주세요. 서비스 개선을 위한 소중한 의견을 기다립니다.",
+  openGraph: {
+    title: "문의하기 | 단기과열종목 계산기",
+    description: "단기과열종목 계산기에 대한 문의사항이나 피드백을 보내주세요.",
+    url: "https://overheat-checker.vercel.app/contact",
+    images: [
+      {
+        url: "/og-contact.png",
+        width: 1200,
+        height: 630,
+        alt: "문의하기 - 단기과열종목 계산기",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "문의하기 | 단기과열종목 계산기",
+    description: "단기과열종목 계산기에 대한 문의사항이나 피드백을 보내주세요.",
+    images: ["/og-contact.png"],
+  },
+  alternates: {
+    canonical: "/contact",
+  },
+};
 
 export default function ContactPage() {
   return (
@@ -63,7 +91,8 @@ export default function ContactPage() {
             href="/"
             className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors"
           >
-            ← 메인 페이지로 돌아가기
+            <MoveLeft className="h-4 w-4 me-2" />
+            메인 페이지로 돌아가기
           </Link>
         </div>
       </div>

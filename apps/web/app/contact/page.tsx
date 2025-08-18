@@ -39,7 +39,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-background p-4 pt-20">
+    <div className="bg-background p-4 pt-20">
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold text-foreground">문의하기</h1>

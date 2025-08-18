@@ -65,7 +65,8 @@ overheat-checker/
 
 ### 공통 규칙
 
-- import는 절대경로를 기준으로 한다
+- import는 절대경로를 기준으로 한다.
+- commit은 .gitmessage.txt에 정리된 형식을 따른다.
 
 ---
 

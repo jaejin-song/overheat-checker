@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     title: "단기과열종목 계산기",
     description:
       "단기과열종목 지정 조건을 실시간으로 계산하고 분석하는 무료 도구입니다. KOSPI/KOSDAQ 종목의 주가상승률, 거래회전율, 주가변동성을 한번에 확인하세요.",
-    url: "https://overheat-checker.vercel.app",
+    url: "https://overheat-checker-web.vercel.app",
     type: "website",
     images: [
       {

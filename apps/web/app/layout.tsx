@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "ko_KR",
-    url: "https://overheat-checker.vercel.app",
+    url: "https://overheat-checker-web.vercel.app",
     siteName: "단기과열종목 계산기",
     title: "단기과열종목 계산기",
     description:
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
       "단기과열종목 지정 조건을 실시간으로 계산하고 분석하는 도구입니다.",
     images: ["/og-image.png"],
   },
-  metadataBase: new URL("https://overheat-checker.vercel.app"),
+  metadataBase: new URL("https://overheat-checker-web.vercel.app"),
   alternates: {
     canonical: "/",
   },

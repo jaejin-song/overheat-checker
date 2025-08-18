@@ -11,11 +11,12 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "문의하기",
-  description: "단기과열종목 계산기에 대한 문의사항이나 피드백을 보내주세요. 서비스 개선을 위한 소중한 의견을 기다립니다.",
+  description:
+    "단기과열종목 계산기에 대한 문의사항이나 피드백을 보내주세요. 서비스 개선을 위한 소중한 의견을 기다립니다.",
   openGraph: {
     title: "문의하기 | 단기과열종목 계산기",
     description: "단기과열종목 계산기에 대한 문의사항이나 피드백을 보내주세요.",
-    url: "https://overheat-checker.vercel.app/contact",
+    url: "https://overheat-checker-web.vercel.app/contact",
     images: [
       {
         url: "/og-contact.png",

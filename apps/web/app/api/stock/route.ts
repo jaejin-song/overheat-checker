@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { toZonedTime } from "date-fns-tz";
-import { subDays } from "date-fns";
+import { subDays, format, isSameDay } from "date-fns";
 import { isMarketOpenDay } from "@/lib/market";
 
 interface YahooFinanceData {
@@ -160,25 +160,42 @@ function processStockData(
   let baseDate;
   let targetDate;
 
+  // 오늘 날짜 (한국 시간 기준)
+  const todayInKorea = format(koreaTime, 'yyyy-MM-dd');
+  
+  // 마지막 데이터의 날짜와 오늘 날짜 비교
+  const lastDataTimestamp = allStockData[allStockData.length - 1]?.timestamp;
+  const isLastDataToday = lastDataTimestamp ? 
+    isSameDay(toZonedTime(lastDataTimestamp, "Asia/Seoul"), koreaTime) : false;
+
   if (isMarketHoliday || isMarketClosedNow) {
-    // 장이 끝났다면 오늘을 포함한 40영업일
+    // 장이 끝났거나 휴장일이라면 최신 40영업일 사용
     stockData = allStockData.slice(-40);
     baseDate = stockData[stockData.length - 1]?.date;
+    
     // 다음 영업일 계산
     const nextBusinessDay = new Date(koreaTime);
     nextBusinessDay.setDate(nextBusinessDay.getDate() + 1);
     while (!isMarketOpenDay(nextBusinessDay)) {
       nextBusinessDay.setDate(nextBusinessDay.getDate() + 1);
     }
-    targetDate = nextBusinessDay.toISOString().split("T")[0];
+    targetDate = format(nextBusinessDay, 'yyyy-MM-dd');
   } else {
-    // 장이 아직 끝나지 않았다면 오늘을 제외한 40영업일
-    stockData = allStockData.slice(-41, -1); // 마지막 하나(오늘) 제외
-    if (stockData.length < 40) {
-      stockData = allStockData.slice(-40); // 데이터가 부족하면 그냥 40개
+    // 장이 아직 끝나지 않았을 때
+    if (isLastDataToday) {
+      // 마지막 데이터가 오늘 데이터라면 제외하고 40영업일
+      stockData = allStockData.slice(-41, -1);
+      if (stockData.length < 40) {
+        // 데이터가 부족하면 사용 가능한 모든 데이터 사용 (최대 40개)
+        stockData = allStockData.slice(0, -1).slice(-40);
+      }
+    } else {
+      // 마지막 데이터가 오늘 데이터가 아니라면 (아직 장이 시작되지 않은 경우) 
+      // 장이 끝났을 때와 마찬가지로 최신 40영업일 사용
+      stockData = allStockData.slice(-40);
     }
     baseDate = stockData[stockData.length - 1]?.date;
-    targetDate = koreaTime.toISOString().split("T")[0];
+    targetDate = todayInKorea;
   }
 
   // timestamp 제거하고 최종 데이터 생성

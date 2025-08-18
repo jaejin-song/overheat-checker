@@ -150,11 +150,8 @@ export function StockStats({ stats }: StockStatsProps) {
         <div className="mt-4 p-3 bg-muted rounded-md">
           <p className="text-sm text-muted-foreground">
             <strong>기준:</strong>{" "}
-            {stats.baseDate ? formatDate(stats.baseDate) : "데이터"}까지의
-            40영업일 데이터를 기준으로 계산
-            {stats.isMarketClosed
-              ? " (장 마감 후 - 다음 영업일 조건)"
-              : " (장중 - 당일 조건)"}
+            {stats.baseDate ? formatDate(stats.baseDate) : "데이터"}까지의 최근
+            40영업일 데이터를 기반으로 계산
           </p>
         </div>
       </div>

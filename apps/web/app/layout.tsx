@@ -83,7 +83,6 @@ export const metadata: Metadata = {
   },
   category: "finance",
 };
-console.log("Google verification:", process.env.GOOGLE_SITE_VERIFICATION);
 
 export default function RootLayout({
   children,

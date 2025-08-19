@@ -1,5 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": ["GOOGLE_SITE_VERIFICATION"],
   "ui": "tui",
   "tasks": {
     "build": {

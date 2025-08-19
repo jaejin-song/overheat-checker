@@ -147,6 +147,20 @@ export function StockStats({ stats }: StockStatsProps) {
           </Card>
         </div>
 
+        <div className="mt-4 p-3 bg-blue-100/70 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md">
+          <p className="text-sm text-blue-800 dark:text-blue-200">
+            <strong>참고:</strong> 위 3가지 조건을 모두 만족하고,{" "}
+            <strong>
+              해당일 종가가 직전 거래일 및 예고일 전일 종가 대비 상승할 경우
+            </strong>{" "}
+            단기과열종목으로 지정됩니다.
+          </p>
+          <p className="text-sm text-blue-800 dark:text-blue-200 mt-2">
+            <strong>※</strong> 투자경고종목 또는 투자위험종목(익일 지정예정 종목
+            포함)인 경우에는 위 요건을 적용하지 않습니다.
+          </p>
+        </div>
+
         <div className="mt-4 p-3 bg-muted rounded-md">
           <p className="text-sm text-muted-foreground">
             <strong>기준:</strong>{" "}
@@ -241,9 +255,11 @@ export function StockStats({ stats }: StockStatsProps) {
 
         <div className="mt-4 p-3 bg-amber-100/70 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-md">
           <p className="text-sm text-amber-800 dark:text-amber-200">
-            <strong>참고:</strong> 위 3가지 조건을 모두 만족하고, 해당일 종가가
-            직전 거래일 및 예고일 전일 종가 대비 상승할 경우 단기과열종목으로
-            지정됩니다.
+            <strong>참고:</strong> 위 3가지 조건을 모두 만족하고,{" "}
+            <strong>
+              해당일 종가가 직전 거래일 및 예고일 전일 종가 대비 상승할 경우
+            </strong>{" "}
+            단기과열종목으로 지정됩니다.
           </p>
           <p className="text-sm text-amber-800 dark:text-amber-200 mt-2">
             <strong>※</strong> 투자경고종목 또는 투자위험종목(익일 지정예정 종목

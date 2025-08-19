@@ -5,6 +5,7 @@ import "@repo/ui/globals.css";
 import { Providers } from "@/components/providers";
 import { Navigation } from "@/components/navigation";
 import { Footer } from "@/components/footer";
+import { Analytics } from "@vercel/analytics/next";
 
 const fontSans = Geist({
   subsets: ["latin"],
@@ -100,6 +101,7 @@ export default function RootLayout({
             <Footer />
           </Providers>
         </div>
+        <Analytics />
       </body>
     </html>
   );

@@ -33,7 +33,7 @@ export function StructuredData() {
     keywords:
       "단기과열종목, 주식 계산기, 한국 주식시장, KOSPI, KOSDAQ, 주가분석",
     datePublished: "2025-01-01",
-    dateModified: new Date().toISOString(),
+    dateModified: "2025-01-01T00:00:00.000Z",
     publisher: {
       "@type": "Organization",
       name: "단기과열종목 계산기",

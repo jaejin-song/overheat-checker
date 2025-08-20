@@ -103,7 +103,9 @@ function processStockData(
   }
 
   const timestamps = result.timestamp;
+  console.log("timestamps :>> ", timestamps);
   const quote = result.indicators.quote?.[0];
+  // console.log("quote :>> ", quote);
   if (!quote) {
     return NextResponse.json(
       { error: "주식 데이터를 찾을 수 없습니다." },
@@ -133,6 +135,12 @@ function processStockData(
       const low = lows[index];
       const volume = volumes[index];
 
+      // console.log(
+      //   "timestamp :>> ",
+      //   format(timestamp * 1000, "yyyy-MM-dd"),
+      //   Math.round(close ?? 0)
+      // );
+
       if (close == null || high == null || low == null || volume == null) {
         return null;
       }
@@ -161,25 +169,28 @@ function processStockData(
   let targetDate;
 
   // 오늘 날짜 (한국 시간 기준)
-  const todayInKorea = format(koreaTime, 'yyyy-MM-dd');
-  
+  const todayInKorea = format(koreaTime, "yyyy-MM-dd");
+
   // 마지막 데이터의 날짜와 오늘 날짜 비교
   const lastDataTimestamp = allStockData[allStockData.length - 1]?.timestamp;
-  const isLastDataToday = lastDataTimestamp ? 
-    isSameDay(toZonedTime(lastDataTimestamp, "Asia/Seoul"), koreaTime) : false;
+  const isLastDataToday = lastDataTimestamp
+    ? isSameDay(toZonedTime(lastDataTimestamp, "Asia/Seoul"), koreaTime)
+    : false;
 
   if (isMarketHoliday || isMarketClosedNow) {
     // 장이 끝났거나 휴장일이라면 최신 40영업일 사용
     stockData = allStockData.slice(-40);
     baseDate = stockData[stockData.length - 1]?.date;
-    
+    console.log("baseDate :>> ", baseDate);
+
     // 다음 영업일 계산
     const nextBusinessDay = new Date(koreaTime);
     nextBusinessDay.setDate(nextBusinessDay.getDate() + 1);
     while (!isMarketOpenDay(nextBusinessDay)) {
       nextBusinessDay.setDate(nextBusinessDay.getDate() + 1);
     }
-    targetDate = format(nextBusinessDay, 'yyyy-MM-dd');
+    targetDate = format(nextBusinessDay, "yyyy-MM-dd");
+    console.log("targetDate :>> ", targetDate);
   } else {
     // 장이 아직 끝나지 않았을 때
     if (isLastDataToday) {
@@ -190,7 +201,7 @@ function processStockData(
         stockData = allStockData.slice(0, -1).slice(-40);
       }
     } else {
-      // 마지막 데이터가 오늘 데이터가 아니라면 (아직 장이 시작되지 않은 경우) 
+      // 마지막 데이터가 오늘 데이터가 아니라면 (아직 장이 시작되지 않은 경우)
       // 장이 끝났을 때와 마찬가지로 최신 40영업일 사용
       stockData = allStockData.slice(-40);
     }

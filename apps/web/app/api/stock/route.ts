@@ -153,7 +153,11 @@ function processStockData(
   // Yahoo Finance API는 한국 장 종료 전에는 가격을 null로 처리
   // 종가가 정해지기 전에는 데이터가 넘어오지 않음
   stockData = allStockData.slice(-40);
-  baseDate = stockData[stockData.length - 1]?.timestamp as Date;
+  const lastItem = stockData[stockData.length - 1];
+  if (!lastItem?.timestamp) {
+    return NextResponse.json({ error: "데이터가 없습니다." }, { status: 404 });
+  }
+  baseDate = lastItem.timestamp;
 
   // 다음 영업일 계산
   const nextBusinessDay = new Date(baseDate);

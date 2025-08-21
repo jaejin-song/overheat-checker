@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { toZonedTime } from "date-fns-tz";
-import { subDays, format, isSameDay } from "date-fns";
+import { subDays, format } from "date-fns";
 import { isMarketOpenDay } from "@/lib/market";
 
 interface YahooFinanceData {
@@ -118,11 +117,6 @@ function processStockData(
   const volumes = quote.volume;
   const meta = result.meta;
 
-  const now = new Date();
-  const koreaTime = toZonedTime(now, "Asia/Seoul");
-
-  const isMarketHoliday = !isMarketOpenDay(koreaTime);
-
   const allStockData = timestamps
     .map((timestamp, index) => {
       const close = closes[index];
@@ -239,7 +233,6 @@ function processStockData(
       minTradingVolume,
       baseDate: format(baseDate, "yyyy-MM-dd"),
       targetDate,
-      isMarketClosed: isMarketHoliday,
     },
   };
 

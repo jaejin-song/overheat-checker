@@ -44,7 +44,6 @@ interface StockInfo {
     minTradingVolume: number;
     baseDate?: string;
     targetDate?: string;
-    isMarketClosed: boolean;
   };
 }
 

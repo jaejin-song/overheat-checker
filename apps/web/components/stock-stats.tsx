@@ -30,7 +30,6 @@ interface StockStatsProps {
     minTradingVolume: number;
     baseDate?: string;
     targetDate?: string;
-    isMarketClosed: boolean;
   };
 }
 

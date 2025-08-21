@@ -103,9 +103,8 @@ function processStockData(
   }
 
   const timestamps = result.timestamp;
-  console.log("timestamps :>> ", timestamps);
   const quote = result.indicators.quote?.[0];
-  // console.log("quote :>> ", quote);
+
   if (!quote) {
     return NextResponse.json(
       { error: "주식 데이터를 찾을 수 없습니다." },
@@ -121,12 +120,8 @@ function processStockData(
 
   const now = new Date();
   const koreaTime = toZonedTime(now, "Asia/Seoul");
-  const koreaHour = koreaTime.getHours();
-  const koreaMinute = koreaTime.getMinutes();
 
   const isMarketHoliday = !isMarketOpenDay(koreaTime);
-  const isMarketClosedNow =
-    koreaHour > 20 || (koreaHour === 20 && koreaMinute >= 5); // 오후 8시 5분 이후면 장 마감
 
   const allStockData = timestamps
     .map((timestamp, index) => {
@@ -134,12 +129,6 @@ function processStockData(
       const high = highs[index];
       const low = lows[index];
       const volume = volumes[index];
-
-      // console.log(
-      //   "timestamp :>> ",
-      //   format(timestamp * 1000, "yyyy-MM-dd"),
-      //   Math.round(close ?? 0)
-      // );
 
       if (close == null || high == null || low == null || volume == null) {
         return null;
@@ -167,46 +156,18 @@ function processStockData(
   let baseDate;
   let targetDate;
 
-  // 오늘 날짜 (한국 시간 기준)
-  const todayInKorea = format(koreaTime, "yyyy-MM-dd");
+  // Yahoo Finance API는 한국 장 종료 전에는 가격을 null로 처리
+  // 종가가 정해지기 전에는 데이터가 넘어오지 않음
+  stockData = allStockData.slice(-40);
+  baseDate = stockData[stockData.length - 1]?.timestamp as Date;
 
-  // 마지막 데이터의 날짜와 오늘 날짜 비교
-  const lastDataTimestamp = allStockData[allStockData.length - 1]?.timestamp;
-  const isLastDataToday = lastDataTimestamp
-    ? isSameDay(toZonedTime(lastDataTimestamp, "Asia/Seoul"), koreaTime)
-    : false;
-
-  if (isMarketHoliday || isMarketClosedNow) {
-    // 장이 끝났거나 휴장일이라면 최신 40영업일 사용
-    stockData = allStockData.slice(-40);
-    baseDate = stockData[stockData.length - 1]?.date;
-    console.log("baseDate :>> ", baseDate);
-
-    // 다음 영업일 계산
-    const nextBusinessDay = new Date(koreaTime);
+  // 다음 영업일 계산
+  const nextBusinessDay = new Date(baseDate);
+  nextBusinessDay.setDate(nextBusinessDay.getDate() + 1);
+  while (!isMarketOpenDay(nextBusinessDay)) {
     nextBusinessDay.setDate(nextBusinessDay.getDate() + 1);
-    while (!isMarketOpenDay(nextBusinessDay)) {
-      nextBusinessDay.setDate(nextBusinessDay.getDate() + 1);
-    }
-    targetDate = format(nextBusinessDay, "yyyy-MM-dd");
-    console.log("targetDate :>> ", targetDate);
-  } else {
-    // 장이 아직 끝나지 않았을 때
-    if (isLastDataToday) {
-      // 마지막 데이터가 오늘 데이터라면 제외하고 40영업일
-      stockData = allStockData.slice(-41, -1);
-      if (stockData.length < 40) {
-        // 데이터가 부족하면 사용 가능한 모든 데이터 사용 (최대 40개)
-        stockData = allStockData.slice(0, -1).slice(-40);
-      }
-    } else {
-      // 마지막 데이터가 오늘 데이터가 아니라면 (아직 장이 시작되지 않은 경우)
-      // 장이 끝났을 때와 마찬가지로 최신 40영업일 사용
-      stockData = allStockData.slice(-40);
-    }
-    baseDate = stockData[stockData.length - 1]?.date;
-    targetDate = todayInKorea;
   }
+  targetDate = format(nextBusinessDay, "yyyy-MM-dd");
 
   // timestamp 제거하고 최종 데이터 생성
   const finalStockData = stockData.map(({ timestamp, ...rest }) => rest);
@@ -276,9 +237,9 @@ function processStockData(
       todayTurnoverRate: Number(todayTurnoverRate.toFixed(3)),
       sharesOutstanding,
       minTradingVolume,
-      baseDate,
+      baseDate: format(baseDate, "yyyy-MM-dd"),
       targetDate,
-      isMarketClosed: isMarketHoliday || isMarketClosedNow,
+      isMarketClosed: isMarketHoliday,
     },
   };
 

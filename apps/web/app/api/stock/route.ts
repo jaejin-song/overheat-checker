@@ -161,8 +161,7 @@ function processStockData(
         !isNaN(item.high) &&
         !isNaN(item.low) &&
         !isNaN(item.volume)
-    )
-    .filter((item) => isMarketOpenDay(item.timestamp)); // 영업일만 필터링
+    );
 
   let stockData;
   let baseDate;

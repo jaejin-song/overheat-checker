@@ -63,7 +63,7 @@ export default function HomeContent() {
     setStockInfo(null);
 
     try {
-      const response = await fetch("/api/test", {
+      const response = await fetch("/api/stock", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

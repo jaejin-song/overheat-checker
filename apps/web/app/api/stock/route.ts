@@ -55,31 +55,31 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     );
 
-    if (!response.ok) {
-      // .KS로 실패하면 .KQ로 시도
-      const kosdaq_response = await fetch(
-        `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}.KQ?period1=${period1}&period2=${period2}&interval=1d`,
-        {
-          headers: {
-            "User-Agent":
-              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          },
-        }
-      );
+    if (response.ok) {
+      const data: YahooFinanceData = await response.json();
+      return processStockData(data, koreanSymbol);
+    }
 
-      if (!kosdaq_response.ok) {
-        return NextResponse.json(
-          { error: "해당 종목을 찾을 수 없습니다. 종목 코드를 확인해주세요." },
-          { status: 404 }
-        );
+    // .KS로 실패하면 .KQ로 시도
+    const kosdaq_response = await fetch(
+      `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}.KQ?period1=${period1}&period2=${period2}&interval=1d`,
+      {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        },
       }
+    );
 
+    if (kosdaq_response.ok) {
       const data: YahooFinanceData = await kosdaq_response.json();
       return processStockData(data, `${symbol}.KQ`);
     }
 
-    const data: YahooFinanceData = await response.json();
-    return processStockData(data, koreanSymbol);
+    return NextResponse.json(
+      { error: "해당 종목을 찾을 수 없습니다. 종목 코드를 확인해주세요." },
+      { status: 404 }
+    );
   } catch (error) {
     console.error("Stock API Error:", error);
     return NextResponse.json(

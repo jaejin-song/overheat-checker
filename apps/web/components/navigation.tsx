@@ -24,6 +24,9 @@ export function Navigation() {
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-3">
             <Button asChild variant="ghost" size="sm">
+              <Link href="/blog">블로그</Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm">
               <Link href="/about">서비스 소개</Link>
             </Button>
             <ThemeToggle />
@@ -55,6 +58,18 @@ export function Navigation() {
         {isMenuOpen && (
           <div className="md:hidden border-t border-border">
             <div className="px-2 pt-2 pb-3 space-y-3">
+              <div className="px-3 py-2">
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start"
+                >
+                  <Link href="/blog" onClick={() => setIsMenuOpen(false)}>
+                    블로그
+                  </Link>
+                </Button>
+              </div>
               <div className="px-3 py-2">
                 <Button
                   asChild

@@ -13,22 +13,28 @@ export function Navigation() {
     <nav className="bg-background border-b border-border sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          {/* Logo/Brand */}
-          <Link
-            href="/"
-            className="font-bold text-lg text-foreground hover:text-foreground/80 transition-colors"
-          >
-            단기과열종목 계산기
-          </Link>
+          {/* Left Section: Logo and Main Links */}
+          <div className="flex items-center gap-6">
+            <Link
+              href="/"
+              className="font-bold text-lg text-foreground hover:text-foreground/80 transition-colors"
+            >
+              단기과열종목 계산기
+            </Link>
+            
+            {/* Main navigation links next to logo */}
+            <div className="hidden md:flex items-center gap-3">
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/blog">블로그</Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/about">서비스 소개</Link>
+              </Button>
+            </div>
+          </div>
 
-          {/* Desktop Menu */}
+          {/* Right Section: Theme and Contact */}
           <div className="hidden md:flex items-center gap-3">
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/blog">블로그</Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/about">서비스 소개</Link>
-            </Button>
             <ThemeToggle />
             <Button
               asChild

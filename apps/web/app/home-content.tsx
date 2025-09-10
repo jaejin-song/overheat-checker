@@ -16,6 +16,7 @@ import { Loader2 } from "lucide-react";
 import { StockChart } from "@/components/stock-chart";
 import { StockStats } from "@/components/stock-stats";
 import { StructuredData } from "@/components/structured-data";
+import { ServiceError } from "@/components/service-error";
 
 interface StockData {
   date: string;
@@ -52,6 +53,7 @@ export default function HomeContent() {
   const [stockInfo, setStockInfo] = useState<StockInfo | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isServiceError, setIsServiceError] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +62,7 @@ export default function HomeContent() {
     setLoading(true);
     setError("");
     setStockInfo(null);
+    setIsServiceError(false);
 
     try {
       const response = await fetch("/api/stock", {
@@ -71,19 +74,72 @@ export default function HomeContent() {
       });
 
       if (!response.ok) {
-        throw new Error("주식 데이터를 가져오는데 실패했습니다.");
+        const errorData = await response.json().catch(() => ({}));
+        
+        // 서버 에러 (5xx) 또는 Yahoo API 관련 에러인 경우 서비스 에러로 처리
+        if (response.status >= 500 || 
+            errorData.message?.includes("Yahoo") || 
+            errorData.message?.includes("API") ||
+            errorData.message?.includes("network") ||
+            errorData.message?.includes("timeout")) {
+          setIsServiceError(true);
+          return;
+        }
+        
+        throw new Error(errorData.message || "주식 데이터를 가져오는데 실패했습니다.");
       }
 
       const data = await response.json();
+      
+      // 데이터 유효성 검증 - Yahoo API에서 불완전한 데이터가 올 수 있음
+      if (!data || !data.data || data.data.length === 0) {
+        setIsServiceError(true);
+        return;
+      }
+      
       setStockInfo(data);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다."
-      );
+      if (err instanceof TypeError && err.message.includes("fetch")) {
+        // 네트워크 에러인 경우 서비스 에러로 처리
+        setIsServiceError(true);
+      } else {
+        setError(
+          err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다."
+        );
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  const handleRetry = () => {
+    setIsServiceError(false);
+    setError("");
+    handleSubmit({ preventDefault: () => {} } as React.FormEvent);
+  };
+
+  // 서비스 에러가 발생한 경우 에러 페이지만 표시
+  if (isServiceError) {
+    return (
+      <>
+        <StructuredData />
+        <div className="bg-background p-4 pt-20">
+          <div className="max-w-6xl mx-auto space-y-6">
+            <div className="text-center space-y-2">
+              <h1 className="text-4xl font-bold text-foreground">
+                단기과열종목 계산기
+              </h1>
+              <p className="text-muted-foreground">
+                단기과열종목 지정예고 종목이 실제로 단기과열종목에 지정되는 조건을
+                미리 계산해보세요
+              </p>
+            </div>
+            <ServiceError onRetry={handleRetry} />
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

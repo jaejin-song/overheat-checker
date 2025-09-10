@@ -80,6 +80,9 @@ export const metadata: Metadata = {
   },
   verification: {
     google: process.env.GOOGLE_SITE_VERIFICATION,
+    other: {
+      naver: process.env.NAVER_SITE_VERIFICATION!,
+    },
   },
   category: "finance",
 };

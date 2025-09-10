@@ -1,6 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { subDays, format } from "date-fns";
 import { isMarketOpenDay } from "@/lib/market";
+import { getKrxBaseInfo } from "@/lib/krx";
+import {
+  DateString,
+  isBusinessDay,
+  previousBusinessDay,
+} from "korea-business-day";
+import { toZonedTime } from "date-fns-tz";
 
 interface YahooFinanceData {
   chart: {
@@ -55,31 +62,68 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     );
 
-    if (response.ok) {
-      const data: YahooFinanceData = await response.json();
-      return processStockData(data, koreanSymbol);
-    }
+    // if (response.ok) {
+    //   const data: YahooFinanceData = await response.json();
 
-    // .KS로 실패하면 .KQ로 시도
-    const kosdaq_response = await fetch(
-      `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}.KQ?period1=${period1}&period2=${period2}&interval=1d`,
-      {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        },
+    //   // get korean name
+    //   const koreanName = await getKoreanName("KOSPI", symbol);
+    //   console.log("koreanName :>> ", koreanName);
+
+    //   return processStockData(data, koreanSymbol, koreanName);
+    // }
+
+    // // .KS로 실패하면 .KQ로 시도
+    // const kosdaq_response = await fetch(
+    //   `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}.KQ?period1=${period1}&period2=${period2}&interval=1d`,
+    //   {
+    //     headers: {
+    //       "User-Agent":
+    //         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    //     },
+    //   }
+    // );
+
+    // if (kosdaq_response.ok) {
+    //   const data: YahooFinanceData = await kosdaq_response.json();
+
+    //   // get korean name
+    //   const koreanName = await getKoreanName("KOSDAQ", symbol);
+
+    //   return processStockData(data, `${symbol}.KQ`, koreanName);
+    // }
+
+    // return NextResponse.json(
+    //   { error: "해당 종목을 찾을 수 없습니다. 종목 코드를 확인해주세요." },
+    //   { status: 404 }
+    // );
+
+    if (!response.ok) {
+      // .KS로 실패하면 .KQ로 시도
+      const kosdaq_response = await fetch(
+        `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}.KQ?period1=${period1}&period2=${period2}&interval=1d`,
+        {
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+          },
+        }
+      );
+
+      if (!kosdaq_response.ok) {
+        return NextResponse.json(
+          { error: "해당 종목을 찾을 수 없습니다. 종목 코드를 확인해주세요." },
+          { status: 404 }
+        );
       }
-    );
 
-    if (kosdaq_response.ok) {
       const data: YahooFinanceData = await kosdaq_response.json();
-      return processStockData(data, `${symbol}.KQ`);
+      const koreanName = await getKoreanName("KOSDAQ", symbol);
+      return processStockData(data, `${symbol}.KQ`, koreanName);
     }
 
-    return NextResponse.json(
-      { error: "해당 종목을 찾을 수 없습니다. 종목 코드를 확인해주세요." },
-      { status: 404 }
-    );
+    const data: YahooFinanceData = await response.json();
+    const koreanName = await getKoreanName("KOSPI", symbol);
+    return processStockData(data, koreanSymbol, koreanName);
   } catch (error) {
     console.error("Stock API Error:", error);
     return NextResponse.json(
@@ -91,7 +135,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 function processStockData(
   data: YahooFinanceData,
-  symbol: string
+  symbol: string,
+  koreanName: string | null
 ): NextResponse {
   const result = data.chart.result?.[0];
   if (!result) {
@@ -218,7 +263,7 @@ function processStockData(
 
   const stockInfo = {
     symbol: symbol.split(".")[0],
-    name: meta.shortName || meta.longName || symbol,
+    name: koreanName || meta.shortName || meta.longName || symbol,
     data: finalStockData,
     stats: {
       avgPrice,
@@ -241,4 +286,40 @@ function processStockData(
   };
 
   return NextResponse.json(stockInfo);
+}
+
+function dateToDateString(date: Date) {
+  return format(date, "yyyy-MM-dd") as DateString;
+}
+
+// yahoo finance가 코스피, 코스닥 구분이 정확하지 않아서
+// krx에서 코스피, 코스닥을 모두 불러오는 방식으로 구현
+async function getKoreanName(
+  market: "KOSPI" | "KOSDAQ",
+  symbol: string
+): Promise<null | string> {
+  const today = toZonedTime(new Date(), "Asia/Seoul");
+  const todayString = dateToDateString(today);
+
+  const businessDay = previousBusinessDay(
+    previousBusinessDay(previousBusinessDay(todayString))
+  );
+
+  const kospiList = await getKrxBaseInfo(
+    "KOSPI",
+    format(new Date(businessDay), "yyyyMMdd")
+  );
+  const kosdaqList = await getKrxBaseInfo(
+    "KOSDAQ",
+    format(new Date(businessDay), "yyyyMMdd")
+  );
+  const infoList = [...kospiList.OutBlock_1, ...kosdaqList.OutBlock_1];
+
+  const matched = infoList.find((info) => info.ISU_SRT_CD === symbol);
+
+  if (matched) {
+    return matched.ISU_ABBRV;
+  }
+
+  return null;
 }
